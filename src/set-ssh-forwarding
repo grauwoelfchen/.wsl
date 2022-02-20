@@ -1,0 +1,25 @@
+#!/bin/sh
+
+PORT=2222
+
+# WSL
+REMOTE_IP=$(
+  ip addr |
+  awk '/inet / && !/127.0.0.1/ { split($2,a,"/"); print a[1] }'
+)
+echo "${REMOTE_IP}"
+
+function run() {
+  local cmd=$1
+
+  /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe \
+    -Command "Start-Process netsh.exe -ArgumentList \"${cmd}\" -Verb RunAs"
+}
+
+RESET="interface portproxy reset"
+run "${RESET}"
+
+# for SSH
+SET_CMD="interface portproxy add v4tov4 listenaddress=0.0.0.0 \
+listenport=${PORT} connectaddress=${REMOTE_IP} connectport=${PORT}"
+run "${SET_CMD}"

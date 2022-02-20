@@ -1,0 +1,43 @@
+#!/bin/sh
+
+# WSL
+REMOTE_IP=$(
+  ip addr |
+  awk '/inet / && !/127.0.0.1/ { split($2,a,"/"); print a[1] }'
+)
+
+# Windows
+LOCAL_PORT=6000
+LOCAL_IP=$(
+  ip route |
+  awk '/^default/ { print $3 }'
+)
+
+echo "-----"
+echo "remote_ip: ${REMOTE_IP}"
+echo "local_ip: ${LOCAL_IP}"
+echo "-----"
+
+function run() {
+  local cmd=$1
+
+  /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe \
+    -Command "Start-Process netsh.exe -ArgumentList \"${cmd}\" -Verb RunAs"
+}
+
+RULE_NAME="X11-Forwarding"
+
+DEL_CMD="advfirewall firewall delete rule \
+name=${RULE_NAME} dir=in"
+
+run "${DEL_CMD}"
+
+ADD_CMD="advfirewall firewall add rule \
+name=${RULE_NAME} dir=in \
+action=allow program=%ProgramFiles%\VcXsrv\\vcxsrv.exe \
+localip=${LOCAL_IP} localport=${LOCAL_PORT} \
+remoteip=${REMOTE_IP} \
+protocol=tcp\
+"
+
+run "${ADD_CMD}"

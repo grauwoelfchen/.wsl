@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# set -eu
+
+REMOTE_IP=$(
+  ip addr |
+  awk '/inet / && !/127.0.0.1/ { split($2,a,"/"); print a[1] }'
+)
+
+PREFIX=/mnt/c/'Program Files'/VcXsrv
+
+# export DISPLAY=127.0.0.1:0.0
+WSLENV=DISPLAY "${PREFIX}"/xhost.exe +inet:${REMOTE_IP}
+WSLENV=DISPLAY "${PREFIX}"/xhost.exe -
