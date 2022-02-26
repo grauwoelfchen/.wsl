@@ -1,3 +1,14 @@
-# Windows
+# .WSL
 
-Miscellaneous Windows related scripts for WSL2 use.
+My miscellaneous scripts for for WSL use.
+
+## Setup
+
+```zsh
+% cd $HOME
+% git clone <repo> .wsl
+```
+
+## License
+
+`MIT`
