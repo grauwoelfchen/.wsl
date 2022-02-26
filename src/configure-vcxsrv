@@ -2,8 +2,6 @@
 
 # set -ux
 
-# -----
-
 REMOTE_IP=$(
   ip addr |
   awk '/inet / && !/127.0.0.1/ { split($2,a,"/"); print a[1] }'
@@ -15,7 +13,7 @@ LOCAL_IP=$(
 
 PREFIX=/mnt/c/Windows/System32
 
-# for firewall
+# for X11
 RULE_NAME="X11-Forwarding"
 FIREWALL_REMOTE_IP=$(
   $PREFIX/netsh.exe advfirewall firewall show rule name="${RULE_NAME}" |
