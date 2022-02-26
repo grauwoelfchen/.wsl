@@ -1,7 +1,15 @@
 #!/bin/env sh
 
-source ./configure-vcxsrv
-source ./configure-xhost
+indent() {
+  sed -u 's/^/  /'
+}
 
-sh ./setup-ssh-forwarding
-sh ./setup-X11-forwarding
+dir=$(dirname $(realpath -e $0))
+
+source $dir/configure-vcxsrv
+source $dir/configure-xhost
+
+echo "---"
+echo "config:"
+sh $dir/set-X11-forwarding | indent
+sh $dir/set-ssh-forwarding | indent

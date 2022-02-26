@@ -13,10 +13,9 @@ LOCAL_IP=$(
   awk '/^default/ { print $3 }'
 )
 
-echo "-----"
-echo "remote_ip: ${REMOTE_IP}"
-echo "local_ip: ${LOCAL_IP}"
-echo "-----"
+echo "x11:"
+echo "  remote_ip: \"${REMOTE_IP}\""
+echo "  local_ip: \"${LOCAL_IP}\""
 
 function run() {
   local cmd=$1

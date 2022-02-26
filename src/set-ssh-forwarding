@@ -7,7 +7,6 @@ REMOTE_IP=$(
   ip addr |
   awk '/inet / && !/127.0.0.1/ { split($2,a,"/"); print a[1] }'
 )
-echo "${REMOTE_IP}"
 
 function run() {
   local cmd=$1
@@ -15,6 +14,13 @@ function run() {
   /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe \
     -Command "Start-Process netsh.exe -ArgumentList \"${cmd}\" -Verb RunAs"
 }
+
+DIR=$(dirname $(realpath -e $0))
+ADDRESS="$(sh $DIR/print-ipaddress | xargs echo -n)"
+
+echo "ssh:"
+echo "  address: \"${ADDRESS}\""
+echo "  port: \"${PORT}\""
 
 RESET="interface portproxy reset"
 run "${RESET}"
