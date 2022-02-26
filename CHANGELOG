@@ -1,0 +1,7 @@
+Sat 26 Feb 2022 Yasuhiro Яша Asaka <yasuhiro.asaka@grauwoelfchen.net>
+	Add Makefile
+
+	* Add `make setup` that invokes a script; setup.sh
+
+Sun 20 Feb 2022 Yasuhiro Яша Asaka <yasuhiro.asaka@grauwoelfchen.net>
+	Initial commit
