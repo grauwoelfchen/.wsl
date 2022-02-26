@@ -1,37 +1,12 @@
 #!/bin/sh
 
-# set -ux
+# set -eux
 
-REMOTE_IP=$(
-  ip addr |
-  awk '/inet / && !/127.0.0.1/ { split($2,a,"/"); print a[1] }'
-)
-LOCAL_IP=$(
+# Windows
+local_ip=$(
   ip route |
   awk '/^default/ { print $3 }'
 )
 
-PREFIX=/mnt/c/Windows/System32
-
-# for X11
-RULE_NAME="X11-Forwarding"
-FIREWALL_REMOTE_IP=$(
-  $PREFIX/netsh.exe advfirewall firewall show rule name="${RULE_NAME}" |
-  awk '/^RemoteIP/ { split($2,a,"/"); print a[1] }'
-)
-FIREWALL_LOCAL_IP=$(
-  $PREFIX/netsh.exe advfirewall firewall show rule name="${RULE_NAME}" |
-  awk '/^LocalIP/ { split($2,a,"/"); print a[1] }'
-)
-if [ "${FIREWALL_REMOTE_IP}" != "${REMOTE_IP}" ] ||
-   [ "${FIREWALL_LOCAL_IP}" != "${LOCAL_IP}" ]
-then
-  IP_SET="localip=${LOCAL_IP} remoteip=${REMOTE_IP}"
-  COMMAND="Start-Process netsh.exe -ArgumentList"
-  COMMAND="${COMMAND} \"advfirewall set rule name=${RULE_NAME} new ${IP_SET}\""
-  COMMAND="${COMMAND} -Verb RunAs"
-  $PREFIX/WindowsPowerShell/v1.0/powershell.exe -Command "${COMMAND}"
-fi
-
-export DISPLAY="${LOCAL_IP}:0"
+export DISPLAY="${local_ip}:0"
 export LIBGL_ALWAYS_INDIRECT=1

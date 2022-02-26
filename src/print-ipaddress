@@ -1,4 +1,10 @@
 #!/bin/sh
 
-/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe \
-  -Command "(Test-Connection -ComputerName (hostname) -Count 1).IPV4Address.IPAddressToString"
+# set -eux
+
+cmd="Test-Connection -ComputerName (hostname) -Count 1"
+
+output=$(/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe \
+  -Command "(${cmd}).IPV4Address.IPAddressToString")
+
+echo "${output}" | sed -u 's/\r//'

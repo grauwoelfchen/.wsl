@@ -1,13 +1,15 @@
 #!/bin/env sh
 
+# set -eux
+
+dir=$(dirname $(realpath -e $0))
+
 indent() {
   sed -u 's/^/  /'
 }
 
-dir=$(dirname $(realpath -e $0))
-
-source $dir/configure-vcxsrv
 source $dir/configure-xhost
+source $dir/configure-vcxsrv
 
 echo "---"
 echo "config:"

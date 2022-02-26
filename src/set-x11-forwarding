@@ -1,42 +1,55 @@
 #!/bin/sh
 
+# set -eux
+
+local_port=6000
+rule_name="X11-Forwarding"
+
 # WSL
-REMOTE_IP=$(
+remote_ip=$(
   ip addr |
   awk '/inet / && !/127.0.0.1/ { split($2,a,"/"); print a[1] }'
 )
 
 # Windows
-LOCAL_PORT=6000
-LOCAL_IP=$(
+local_ip=$(
   ip route |
   awk '/^default/ { print $3 }'
 )
 
-echo "x11:"
-echo "  remote_ip: \"${REMOTE_IP}\""
-echo "  local_ip: \"${LOCAL_IP}\""
+prefix=/mnt/c/Windows/System32
 
-function run() {
+function run_netsh() {
   local cmd=$1
 
-  /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe \
+  $prefix/netsh.exe $cmd
+}
+
+function run_as_netsh() {
+  local cmd=$1
+
+  $prefix/WindowsPowerShell/v1.0/powershell.exe \
     -Command "Start-Process netsh.exe -ArgumentList \"${cmd}\" -Verb RunAs"
 }
 
-RULE_NAME="X11-Forwarding"
+get_cmd="advfirewall firewall show rule name=\"${rule_name}\""
+run_netsh "${get_cmd}" | grep "No rules match"
+if [ $? -ne 0 ]; then
+  del_cmd="advfirewall firewall delete rule \
+name=${rule_name} dir=in"
+  run_as_netsh "${del_cmd}"
+fi
 
-DEL_CMD="advfirewall firewall delete rule \
-name=${RULE_NAME} dir=in"
-
-run "${DEL_CMD}"
-
-ADD_CMD="advfirewall firewall add rule \
-name=${RULE_NAME} dir=in \
+add_cmd="advfirewall firewall add rule \
+name=${rule_name} dir=in \
 action=allow program=%ProgramFiles%\VcXsrv\\vcxsrv.exe \
-localip=${LOCAL_IP} localport=${LOCAL_PORT} \
-remoteip=${REMOTE_IP} \
+localip=${local_ip} localport=${local_port} \
+remoteip=${remote_ip} \
 protocol=tcp\
 "
+run_as_netsh "${add_cmd}"
 
-run "${ADD_CMD}"
+echo "x11:"
+echo "  remote_ip: \"${remote_ip}\""
+echo "  local_ip: \"${local_ip}\""
+echo "  local_port: \"${local_port}\""

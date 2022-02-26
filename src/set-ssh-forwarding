@@ -1,31 +1,39 @@
 #!/bin/sh
 
-PORT=2222
+# set -eux
+
+dir=$(dirname $(realpath -e $0))
+
+listen_address="0.0.0.0"
+port=2222
+
+address=$(sh $dir/print-ipaddress)
 
 # WSL
-REMOTE_IP=$(
+remote_ip=$(
   ip addr |
   awk '/inet / && !/127.0.0.1/ { split($2,a,"/"); print a[1] }'
 )
 
-function run() {
+prefix=/mnt/c/Windows/System32
+
+function run_as_netsh() {
   local cmd=$1
 
-  /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe \
+  $prefix/WindowsPowerShell/v1.0/powershell.exe \
     -Command "Start-Process netsh.exe -ArgumentList \"${cmd}\" -Verb RunAs"
 }
 
-DIR=$(dirname $(realpath -e $0))
-ADDRESS="$(sh $DIR/print-ipaddress | xargs echo -n)"
+# TODO: Set firewall rule as the same as the one for X11 at here
 
-echo "ssh:"
-echo "  address: \"${ADDRESS}\""
-echo "  port: \"${PORT}\""
-
-RESET="interface portproxy reset"
-run "${RESET}"
+reset_cmd="interface portproxy reset"
+run_as_netsh "${reset_cmd}"
 
 # for SSH
-SET_CMD="interface portproxy add v4tov4 listenaddress=0.0.0.0 \
-listenport=${PORT} connectaddress=${REMOTE_IP} connectport=${PORT}"
-run "${SET_CMD}"
+set_cmd="interface portproxy add v4tov4 listenaddress=${listen_address} \
+listenport=${port} connectaddress=${remote_ip} connectport=${port}"
+run_as_netsh "${set_cmd}"
+
+echo "ssh:"
+echo "  address: \"${address}\""
+echo "  port: \"${port}\""
