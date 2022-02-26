@@ -11,5 +11,5 @@ source $dir/configure-xhost
 
 echo "---"
 echo "config:"
-sh $dir/set-X11-forwarding | indent
+sh $dir/set-x11-forwarding | indent
 sh $dir/set-ssh-forwarding | indent
